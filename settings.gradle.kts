@@ -19,5 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RMAS Project"
+rootProject.name = "RMASProject"
 include(":app")
+ 
