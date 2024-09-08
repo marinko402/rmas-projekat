@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.rmasproject.ui.theme.RMASProjectTheme
 import com.google.maps.android.compose.GoogleMap
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,14 +84,38 @@ fun NavBar(){
                         tint = if(selected.value == Icons.Default.Map) Color.White else Color . Black)
                 }
                 IconButton(
-                    onClick = { selected.value = Icons.Default.Person
-                        navController.navigate(Screens.Profile.screen){
+                    onClick = { selected.value = Icons.Default.Stars
+                        navController.navigate(Screens.BestPlayers.screen){
                             popUpTo(0)
                         }
                     },
                     modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size((26.dp)),
-                        tint = if(selected.value == Icons.Default.Person) Color.White else Color . Black)
+                    Icon(Icons.Default.Stars, contentDescription = null, modifier = Modifier.size((26.dp)),
+                        tint = if(selected.value == Icons.Default.Stars) Color.White else Color . Black)
+                }
+                IconButton(
+                    onClick = {
+                        selected.value = Icons.Default.AccountCircle
+                        if (isUserLoggedIn()) {
+                            // Ako je korisnik ulogovan, navigiraj na profil
+                            navController.navigate(Screens.Profile.screen) {
+                                popUpTo(0)
+                            }
+                        } else {
+                            // Ako nije ulogovan, navigiraj na login
+                            navController.navigate(Screens.Login.screen) {
+                                popUpTo(0)
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        Icons.Default.AccountCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size((26.dp)),
+                        tint = if (selected.value == Icons.Default.AccountCircle) Color.White else Color.Black
+                    )
                 }
             }
         }
@@ -99,7 +126,15 @@ fun NavBar(){
             composable(Screens.Home.screen){Home()}
             composable(Screens.Profile.screen){Profile()}
             composable(Screens.Map.screen){Map()}
+            composable(Screens.BestPlayers.screen){BestPlayers()}
+            composable(Screens.Login.screen) { Login(navController) }
+            composable(Screens.Register.screen) { Register(navController) }
         }
 
     }
+}
+
+//val auth = FirebaseAuth.getInstance()
+fun isUserLoggedIn(): Boolean {
+    return auth.currentUser != null
 }
