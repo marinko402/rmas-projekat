@@ -7,4 +7,5 @@ sealed class Screens (val screen:String){
     data object Login:Screens("login")
     data object Register:Screens("register")
     data object BestPlayers:Screens("bestplayers")
+    data object Activities:Screens("activities")
 }

@@ -93,7 +93,6 @@ fun Register(navController: NavController) {
                     visualTransformation = PasswordVisualTransformation()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
@@ -119,10 +118,8 @@ fun Register(navController: NavController) {
                     Text(text = errorMessage ?: "", color = androidx.compose.ui.graphics.Color.Red)
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(onClick = {
-                    // Navigacija nazad na login
                     navController.navigate(Screens.Login.screen)
                 }) {
                     Text("Već imate nalog? Ulogujte se")

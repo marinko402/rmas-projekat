@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -74,24 +77,34 @@ fun NavBar(){
                         tint = if(selected.value == Icons.Default.Home) Color.White else Color . Black)
                 }
                 IconButton(
-                    onClick = { selected.value = Icons.Default.Map
+                    onClick = { selected.value = Icons.Default.Place
                         navController.navigate(Screens.Map.screen){
                             popUpTo(0)
                         }
                     },
                     modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size((26.dp)),
-                        tint = if(selected.value == Icons.Default.Map) Color.White else Color . Black)
+                    Icon(Icons.Default.Place, contentDescription = null, modifier = Modifier.size((26.dp)),
+                        tint = if(selected.value == Icons.Default.Place) Color.White else Color . Black)
                 }
                 IconButton(
-                    onClick = { selected.value = Icons.Default.Stars
+                    onClick = { selected.value = Icons.Default.SportsBasketball
+                        navController.navigate(Screens.Activities.screen){
+                            popUpTo(0)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.SportsBasketball, contentDescription = null, modifier = Modifier.size((26.dp)),
+                        tint = if(selected.value == Icons.Default.SportsBasketball) Color.White else Color . Black)
+                }
+                IconButton(
+                    onClick = { selected.value = Icons.Default.Groups
                         navController.navigate(Screens.BestPlayers.screen){
                             popUpTo(0)
                         }
                     },
                     modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Stars, contentDescription = null, modifier = Modifier.size((26.dp)),
-                        tint = if(selected.value == Icons.Default.Stars) Color.White else Color . Black)
+                    Icon(Icons.Default.Groups, contentDescription = null, modifier = Modifier.size((26.dp)),
+                        tint = if(selected.value == Icons.Default.Groups) Color.White else Color . Black)
                 }
                 IconButton(
                     onClick = {
@@ -124,11 +137,12 @@ fun NavBar(){
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)){
             composable(Screens.Home.screen){Home()}
-            composable(Screens.Profile.screen){Profile()}
+            composable(Screens.Profile.screen){Profile(navController)}
             composable(Screens.Map.screen){Map()}
             composable(Screens.BestPlayers.screen){BestPlayers()}
             composable(Screens.Login.screen) { Login(navController) }
             composable(Screens.Register.screen) { Register(navController) }
+            composable(Screens.Activities.screen){ Activities() }
         }
 
     }
