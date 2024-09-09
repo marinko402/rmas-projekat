@@ -89,7 +89,7 @@ fun Profile(navController: NavController) {
                 val profileImageUrl = userData!!["profileImageUrl"] as? String
 
                 val painter = rememberImagePainter(
-                    data = profileImageUrl ?: "https://via.placeholder.com/150",
+                    data = profileImageUrl ?: R.drawable.ic_placeholder,
                     builder = {
                         crossfade(true)
                         placeholder(R.drawable.ic_placeholder)
