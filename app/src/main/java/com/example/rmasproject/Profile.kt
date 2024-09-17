@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -111,6 +112,7 @@ fun Profile(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Text(text = "Username: ${userData!!["username"]}")
                 Text(text = "Ime: ${userData!!["name"]}")
                 Text(text = "Prezime: ${userData!!["surname"]}")
                 Text(text = "Email: ${userData!!["email"]}")
@@ -131,8 +133,25 @@ fun Profile(navController: NavController) {
                 ) {
                     Text("Odjavi se")
                 }
+                Button(
+                    onClick = {
+                        deleteUserAccount {
+                            navController.navigate(Screens.Login.screen) {
+                                popUpTo(Screens.Profile.screen) { inclusive = true }
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Obrisi moj nalog")
+                }
             } else {
                 Text(text = "Podaci nisu dostupni.")
+                TextButton(onClick = {
+                    navController.navigate(Screens.Login.screen)
+                }) {
+                    Text("Login")
+                }
             }
         }
     }
@@ -200,6 +219,32 @@ fun updateUserProfileImage(userId: String?, imageUrl: String) {
             }
     }
 }
+fun deleteUserAccount(onComplete: (Boolean) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        // Prvo obriši podatke iz Firestore-a (ako je potrebno)
+        FirebaseFirestore.getInstance().collection("users").document(user.uid)
+            .delete()
+            .addOnSuccessListener {
+                // Nakon što obrišeš podatke, obriši nalog iz Authentication
+                user.delete()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            onComplete(true) // Uspješno obrisan nalog
+                        } else {
+                            onComplete(false) // Greška prilikom brisanja naloga
+                        }
+                    }
+            }
+            .addOnFailureListener {
+                onComplete(false) // Greška prilikom brisanja podataka iz Firestore-a
+            }
+    } else {
+        onComplete(false) // Korisnik nije ulogovan
+    }
+}
+
 
 
 
