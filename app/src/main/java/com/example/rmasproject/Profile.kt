@@ -45,7 +45,7 @@ fun Profile(navController: NavController) {
     val db = FirebaseFirestore.getInstance()
 
     var userData by remember { mutableStateOf<Map<String, Any>?>(null) }
-    var showImagePicker by remember { mutableStateOf(false) }
+    var imgUri by remember { mutableStateOf<Uri?>(null) }
 
     // Preuzimamo podatke o korisniku
     LaunchedEffect(userId) {
@@ -57,21 +57,6 @@ fun Profile(navController: NavController) {
                 if (snapshot != null && snapshot.exists()) {
                     userData = snapshot.data
                 }
-            }
-        }
-    }
-
-    val context = LocalContext.current
-
-    // Launcher za izbor slike
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            // Upload slike u Firebase Storage
-            uploadImageToFirebaseStorage(uri) { imageUrl ->
-                // Ažuriraj profilnu sliku korisnika u Firestore-u
-                updateUserProfileImage(userId, imageUrl)
             }
         }
     }
@@ -104,8 +89,8 @@ fun Profile(navController: NavController) {
                         .size(150.dp)
                         .clip(CircleShape)
                         .clickable {
-                            // Pokreni izbor slike iz galerije
-                            launcher.launch("image/*")
+                            // Show the Image Picker
+                            imgUri = Uri.EMPTY // Reset the URI before opening the picker
                         },
                     contentScale = ContentScale.Crop
                 )
@@ -145,6 +130,21 @@ fun Profile(navController: NavController) {
                 ) {
                     Text("Obrisi moj nalog")
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Integrate the ImagePicker here
+                ImagePicker(
+                    navController = navController,
+                    modifier = Modifier,
+                )
+
+                // If an image was picked, upload it to Firebase
+                imgUri?.let { uri ->
+                    uploadImageToFirebaseStorage(uri) { imageUrl ->
+                        updateUserProfileImage(userId, imageUrl)
+                    }
+                }
             } else {
                 Text(text = "Podaci nisu dostupni.")
                 TextButton(onClick = {
@@ -156,6 +156,7 @@ fun Profile(navController: NavController) {
         }
     }
 }
+
 
 fun logoutUser(onComplete: () -> Unit) {
     FirebaseAuth.getInstance().signOut()

@@ -31,15 +31,16 @@ fun Activities(navController: NavController) {
 
     LaunchedEffect(selectedSport) {
         val result = db.collection("activities").get().await()
-        val fetchedActivities = result.documents.map { it.data ?: emptyMap<String, Any>() }
+        val fetchedActivities = result.documents.map { document ->
+            val data = document.data ?: emptyMap<String, Any>()
+            data + ("id" to document.id)
+        }
 
         val now = Date()
         val filteredActivities = fetchedActivities.filter { act ->
-            // Pretpostavimo da je datum u string formatu "yyyy-MM-dd" i vreme "HH:mm"
             val dateStr = act["date"] as? String
             val timeStr = act["time"] as? String
             val dateTimeStr = "$dateStr $timeStr"
-
             val activityDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).parse(dateTimeStr)
 
             // Filter: aktivnost koja nije prošla i odgovara sportu
@@ -92,19 +93,29 @@ fun Activities(navController: NavController) {
                 // Prikaz aktivnosti u listi
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(activities) { activity ->
-                        val activityId = activity["id"] as? String ?: ""
+                        val activityId = activity["id"] as? String
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
-                                .clickable {
-                                    navController.navigate("${Screens.ActivityDetails.screen}/$activityId")
-                                }
                         ) {
+                            Text(text = "ID: $activityId")
                             Text(text = "Sport: ${activity["sport"]}")
                             Text(text = "Datum: ${activity["date"]}")
                             Text(text = "Vreme: ${activity["time"]}")
+                            Text(text = "Minimalni score: ${activity["minScore"]}")
                             Text(text = "Broj prijavljenih: ${activity["players"]?.let { (it as List<*>).size } ?: 0}")
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Dodaj dugme za detalje
+                            Button(
+                                onClick = {
+                                    navController.navigate("${Screens.ActivityDetails.screen}/$activityId")
+                                }
+                            ) {
+                                Text(text = "Detalji")
+                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -113,4 +124,5 @@ fun Activities(navController: NavController) {
         }
     )
 }
+
 
