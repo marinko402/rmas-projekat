@@ -54,7 +54,7 @@ fun Map(navController: NavController) {
 
         LaunchedEffect(Unit) {
             locationClient.getLocationUpdates(10000L).collect { location ->
-                currentLocation = LatLng(location.latitude, location.longitude)
+                    currentLocation = LatLng(location.latitude, location.longitude)
             }
         }
     }

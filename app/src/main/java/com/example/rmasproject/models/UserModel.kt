@@ -13,5 +13,5 @@ data class User(
     val phone : String = "",
     val profileImageUrl : String = "",
     val email : String = "",
-    val score : Number = 0
+    val score : Long = 0
 )

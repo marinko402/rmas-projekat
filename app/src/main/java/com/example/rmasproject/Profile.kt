@@ -140,11 +140,13 @@ fun Profile(navController: NavController) {
                 )
 
                 // If an image was picked, upload it to Firebase
-                imgUri?.let { uri ->
-                    uploadImageToFirebaseStorage(uri) { imageUrl ->
-                        updateUserProfileImage(userId, imageUrl)
+                imgUri?.let { imgUri ->
+                        // Upload slike u Firebase Storage
+                        uploadImageToFirebaseStorage(imgUri) { imageUrl ->
+                            // Ažuriraj profilnu sliku korisnika u Firestore-u
+                            updateUserProfileImage(userId, imageUrl)
+                        }
                     }
-                }
             } else {
                 Text(text = "Podaci nisu dostupni.")
                 TextButton(onClick = {
