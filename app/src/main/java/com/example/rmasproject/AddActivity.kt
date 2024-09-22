@@ -65,79 +65,68 @@ fun AddActivity(navController: NavController, lat: Double, lng: Double) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Date Picker TextField (clickable on the whole text field)
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Datum") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val datePicker = DatePickerDialog(
-                                context,
-                                { _, year, month, day ->
-                                    date = "$day.${month + 1}.$year"
-                                },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
-                            )
-                            datePicker.show()
-                        },
-                    trailingIcon = {
-                        Icon(Icons.Default.DateRange, contentDescription = "Izaberi datum")
-                    }
-                )
+                OutlinedButton(
+                    onClick = {
+                        val datePicker = DatePickerDialog(
+                            context,
+                            { _, year, month, day ->
+                                date = "$day.${month + 1}.$year"
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        )
+                        datePicker.show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (date.isEmpty()) "Izaberi datum" else date)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.DateRange, contentDescription = "Izaberi datum")
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Time Picker TextField (clickable on the whole text field)
-                OutlinedTextField(
-                    value = time,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Vreme") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val timePicker = TimePickerDialog(
-                                context,
-                                { _, hour, minute ->
-                                    time = String.format("%02d:%02d", hour, minute)
-                                },
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE),
-                                true
-                            )
-                            timePicker.show()
-                        },
-                    trailingIcon = {
-                        Icon(Icons.Default.Schedule, contentDescription = "Izaberi vreme")
-                    }
-                )
+                OutlinedButton(
+                    onClick = {
+                        val timePicker = TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                time = String.format("%02d:%02d", hour, minute)
+                            },
+                            calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            true
+                        )
+                        timePicker.show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (time.isEmpty()) "Izaberi vreme" else time)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.Schedule, contentDescription = "Izaberi vreme")
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Sport Picker TextField (clickable on the whole text field)
-                OutlinedTextField(
-                    value = selectedSport,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Sport") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showSportDialog = true
-                        },
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Izaberi sport")
-                    }
-                )
+                OutlinedButton(
+                    onClick = {
+                        showSportDialog = true
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (selectedSport.isEmpty()) "Izaberi sport" else selectedSport)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Izaberi sport")
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
+                        increaseUserScore()
                         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                         val activity = hashMapOf(
                             "sport" to selectedSport,

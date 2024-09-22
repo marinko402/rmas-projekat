@@ -148,7 +148,7 @@ fun Register(navController: NavController) {
 
                 Button(
                     onClick = {
-                        registerUser(email, password) { isSuccess ->
+                        registerUser(email, username, password) { isSuccess ->
                             if (isSuccess) {
                                 val userId = FirebaseAuth.getInstance().currentUser?.uid
                                 if (userId != null) {
@@ -191,14 +191,28 @@ fun Register(navController: NavController) {
 val auth = FirebaseAuth.getInstance()
 val db = FirebaseFirestore.getInstance()
 
-fun registerUser(email: String, password: String, onComplete: (Boolean) -> Unit) {
+fun registerUser(email: String, password: String, username: String, onComplete: (Boolean) -> Unit) {
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                onComplete(true)
+                val userId = auth.currentUser?.uid
+                val user = hashMapOf(
+                    "email" to email,
+                    "username" to username,
+                    "userId" to userId
+                )
+                FirebaseFirestore.getInstance().collection("users").document(userId!!)
+                    .set(user)
+                    .addOnSuccessListener {
+                        onComplete(true)
+                    }
+                    .addOnFailureListener {
+                        onComplete(false)
+                    }
             } else {
                 onComplete(false)
             }
+
         }
 }
 fun saveUserData(userId: String, name: String, surname: String, email: String, phone: String, username: String, score: Int) {

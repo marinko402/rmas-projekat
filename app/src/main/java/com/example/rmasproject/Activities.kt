@@ -99,11 +99,12 @@ fun Activities(navController: NavController) {
                                 .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
-                            Text(text = "ID: $activityId")
+                            //Text(text = "ID: $activityId")
                             Text(text = "Sport: ${activity["sport"]}")
                             Text(text = "Datum: ${activity["date"]}")
                             Text(text = "Vreme: ${activity["time"]}")
                             Text(text = "Minimalni score: ${activity["minScore"]}")
+                            Text(text = "Max igraca: ${activity["playersCount"]}")
                             Text(text = "Broj prijavljenih: ${activity["players"]?.let { (it as List<*>).size } ?: 0}")
 
                             Spacer(modifier = Modifier.height(8.dp))

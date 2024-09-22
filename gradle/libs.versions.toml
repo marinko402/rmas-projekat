@@ -30,6 +30,7 @@ runtimeLivedata = "1.6.8"
 firebaseFirestoreKtx = "25.0.0"
 firebaseStorageKtx = "21.0.0"
 secretsGradlePlugin = "2.0.1"
+firebaseMessagingKtx = "24.0.1"
 
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
@@ -67,6 +68,7 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-maps-v1802 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

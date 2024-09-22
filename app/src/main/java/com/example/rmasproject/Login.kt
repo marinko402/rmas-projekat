@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun Login(navController: NavController) {
@@ -104,7 +105,7 @@ fun Login(navController: NavController) {
 
 
 
-fun loginUser(email: String, password: String, onComplete: (Boolean) -> Unit) {
+/*fun loginUser(email: String, password: String, onComplete: (Boolean) -> Unit) {
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -113,4 +114,45 @@ fun loginUser(email: String, password: String, onComplete: (Boolean) -> Unit) {
                 onComplete(false)
             }
         }
+}*/
+fun loginUser(identifier: String, password: String, onComplete: (Boolean) -> Unit) {
+    if (identifier.contains("@")) {
+        // Ako je uneti podatak e-mail, direktno pozovi signIn
+        auth.signInWithEmailAndPassword(identifier, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onComplete(true)
+                } else {
+                    onComplete(false)
+                }
+            }
+    } else {
+        // Ako je uneti podatak username, prvo nađi e-mail
+        FirebaseFirestore.getInstance().collection("users")
+            .whereEqualTo("username", identifier)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val email = documents.documents[0].getString("email")
+                    if (!email.isNullOrEmpty()) {
+                        // Sada koristi nađeni e-mail za login
+                        auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    onComplete(true)
+                                } else {
+                                    onComplete(false)
+                                }
+                            }
+                    } else {
+                        onComplete(false)
+                    }
+                } else {
+                    onComplete(false)
+                }
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
+    }
 }

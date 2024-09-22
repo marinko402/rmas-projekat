@@ -162,7 +162,9 @@ fun registerForActivity(activityId: String, userId: String, db: FirebaseFirestor
     db.collection("activities").document(activityId).update("players", FieldValue.arrayUnion(userId))
         .addOnCompleteListener {
             onComplete()
+            increaseUserScore()
         }
+
 }
 
 // Funkcija za odjavu sa aktivnosti
@@ -170,5 +172,48 @@ fun unregisterFromActivity(activityId: String, userId: String, db: FirebaseFires
     db.collection("activities").document(activityId).update("players", FieldValue.arrayRemove(userId))
         .addOnCompleteListener {
             onComplete()
+            decreaseUserScore()
         }
+
 }
+
+fun increaseUserScore() {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val db = FirebaseFirestore.getInstance()
+
+    if (currentUser != null) {
+        val userId = currentUser.uid
+        val userRef = db.collection("users").document(userId)
+
+        userRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val currentScore = documentSnapshot.getLong("score") ?: 0
+                userRef.update("score", currentScore + 100)
+            }
+        }.addOnFailureListener { exception ->
+            // Obrada greške, na primer, ispisivanje poruke u log
+            exception.printStackTrace()
+        }
+    }
+}
+
+fun decreaseUserScore() {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val db = FirebaseFirestore.getInstance()
+
+    if (currentUser != null) {
+        val userId = currentUser.uid
+        val userRef = db.collection("users").document(userId)
+
+        userRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val currentScore = documentSnapshot.getLong("score") ?: 0
+                userRef.update("score", currentScore - 100)
+            }
+        }.addOnFailureListener { exception ->
+            // Obrada greške, na primer, ispisivanje poruke u log
+            exception.printStackTrace()
+        }
+    }
+}
+
