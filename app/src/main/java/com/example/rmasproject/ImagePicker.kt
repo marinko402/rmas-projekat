@@ -87,13 +87,14 @@ fun ImagePicker(
             null
         }
     }
-
+    val userId = auth.currentUser?.uid
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {
             it?.let {
                 it.let { uri ->
-                    imgUri = uri
+                    uploadImageToFirebaseStorage(uri) { imageUrl ->
+                        updateUserProfileImage(userId, imageUrl)}
                 }
             }
         }
@@ -104,7 +105,8 @@ fun ImagePicker(
         onResult = {isSaved ->
             if (isSaved) {
                 tempUri.value?.let { uri ->
-                    imgUri = uri
+                    uploadImageToFirebaseStorage(uri) { imageUrl ->
+                        updateUserProfileImage(userId, imageUrl)}
                 }
             } else {
                 Toast.makeText(context, "Failed to save photo", Toast.LENGTH_SHORT).show()

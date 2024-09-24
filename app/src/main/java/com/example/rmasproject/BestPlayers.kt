@@ -1,6 +1,8 @@
 package com.example.rmasproject
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -32,23 +36,33 @@ fun BestPlayers() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         content = { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
             ) {
-                Text(text = "Best Players")
+                Image(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Text(text = "Best Players")
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Tabela sa rangiranim igračima
-                if (players.isNotEmpty()) {
-                    BestPlayersTable(players)
-                } else {
-                    Text(text = "Nema dostupnih igrača.")
+                    if (players.isNotEmpty()) {
+                        BestPlayersTable(players)
+                    } else {
+                        Text(text = "Nema dostupnih igrača.")
+                    }
                 }
             }
         }
@@ -58,18 +72,16 @@ fun BestPlayers() {
 @Composable
 fun BestPlayersTable(players: List<Map<String, Any>>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Header
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Rang", modifier = Modifier.weight(1f))
-            Text(text = "Ime", modifier = Modifier.weight(2f))
+            Text(text = "User", modifier = Modifier.weight(2f))
             Text(text = "Score", modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista igrača
         players.forEachIndexed { index, player ->
-            val name = player["name"] as? String ?: "Nepoznato"
+            val name = player["username"] as? String ?: "Nepoznato"
             val score = player["score"] as? Long ?: 0
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

@@ -1,12 +1,15 @@
 package com.example.rmasproject
 
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.ContactsContract.Profile
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,14 +31,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.rmasproject.ui.theme.primary
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 
 
 @Composable
@@ -45,9 +57,20 @@ fun Profile(navController: NavController) {
     val db = FirebaseFirestore.getInstance()
 
     var userData by remember { mutableStateOf<Map<String, Any>?>(null) }
-    var imgUri by remember { mutableStateOf<Uri?>(null) }
+    val tempUri = remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+    var showBottomSheet by remember { mutableStateOf(false) }
 
-    // Preuzimamo podatke o korisniku
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            uploadImageToFirebaseStorage(it) { imageUrl ->
+                updateUserProfileImage(userId, imageUrl)
+            }
+        }
+    }
+
     LaunchedEffect(userId) {
         if (userId != null) {
             db.collection("users").document(userId).addSnapshotListener { snapshot, e ->
@@ -62,97 +85,108 @@ fun Profile(navController: NavController) {
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
         ) {
-            if (userData != null) {
-                // Prikaz profilne slike
-                val profileImageUrl = userData!!["profileImageUrl"] as? String
+            Image(
+                painter = painterResource(id = R.drawable.back),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                if (userData != null) {
+                    val profileImageUrl = userData!!["profileImageUrl"] as? String
 
-                val painter = rememberImagePainter(
-                    data = profileImageUrl ?: R.drawable.ic_placeholder,
-                    builder = {
-                        crossfade(true)
-                        placeholder(R.drawable.ic_placeholder)
-                    }
-                )
+                    val painter = rememberImagePainter(
+                        data = profileImageUrl ?: R.drawable.ic_placeholder,
+                        builder = {
+                            crossfade(true)
+                            placeholder(R.drawable.ic_placeholder)
+                        }
+                    )
 
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .clickable {
-                            // Show the Image Picker
-                            imgUri = Uri.EMPTY // Reset the URI before opening the picker
+                    Image(
+                        painter = painter,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = "Username: ${userData!!["username"]}")
+                    Text(text = "Ime: ${userData!!["name"]}")
+                    Text(text = "Prezime: ${userData!!["surname"]}")
+                    Text(text = "Email: ${userData!!["email"]}")
+                    Text(text = "Telefon: ${userData!!["phone"]}")
+                    Text(text = "Score: ${userData!!["score"]}")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = primary),
+                        onClick = {
+                            logoutUser {
+                                navController.navigate(Screens.Login.screen) {
+                                    popUpTo(Screens.Profile.screen) { inclusive = true }
+                                }
+                            }
                         },
-                    contentScale = ContentScale.Crop
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(text = "Username: ${userData!!["username"]}")
-                Text(text = "Ime: ${userData!!["name"]}")
-                Text(text = "Prezime: ${userData!!["surname"]}")
-                Text(text = "Email: ${userData!!["email"]}")
-                Text(text = "Telefon: ${userData!!["phone"]}")
-                Text(text = "Score: ${userData!!["score"]}")
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        logoutUser {
-                            navController.navigate(Screens.Login.screen) {
-                                popUpTo(Screens.Profile.screen) { inclusive = true }
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Odjavi se")
-                }
-                Button(
-                    onClick = {
-                        deleteUserAccount {
-                            navController.navigate(Screens.Login.screen) {
-                                popUpTo(Screens.Profile.screen) { inclusive = true }
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Obrisi moj nalog")
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Integrate the ImagePicker here
-                ImagePicker(
-                    navController = navController,
-                    modifier = Modifier,
-                )
-
-                // If an image was picked, upload it to Firebase
-                imgUri?.let { imgUri ->
-                        // Upload slike u Firebase Storage
-                        uploadImageToFirebaseStorage(imgUri) { imageUrl ->
-                            // Ažuriraj profilnu sliku korisnika u Firestore-u
-                            updateUserProfileImage(userId, imageUrl)
-                        }
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Odjavi se")
                     }
-            } else {
-                Text(text = "Podaci nisu dostupni.")
-                TextButton(onClick = {
-                    navController.navigate(Screens.Login.screen)
-                }) {
-                    Text("Login")
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = primary),
+                        onClick = {
+                            deleteUserAccount {
+                                navController.navigate(Screens.Login.screen) {
+                                    popUpTo(Screens.Profile.screen) { inclusive = true }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Obrisi moj nalog")
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    ImagePicker(
+                        navController = navController,
+                        modifier = Modifier,
+                    )
+                    if (showBottomSheet) {
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = primary),
+                        onClick = {
+                            if (!showBottomSheet)
+                                showBottomSheet = true
+
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Odaberi sliku iz galerije")
+                    }
+                } else {
+                    Text(text = "Podaci nisu dostupni.")
+                    TextButton(onClick = {
+                        navController.navigate(Screens.Login.screen)
+                    }) {
+                        Text("Login")
+                    }
                 }
             }
         }
@@ -160,35 +194,27 @@ fun Profile(navController: NavController) {
 }
 
 
-fun logoutUser(onComplete: () -> Unit) {
-    FirebaseAuth.getInstance().signOut()
-    onComplete()
-}
-@Composable
+
+/*@Composable
 fun selectImageFromGallery(navController: NavController) {
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     val userId = auth.currentUser?.uid
 
-    // Launcher za pokretanje galerije
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            // Upload slike u Firebase Storage
             uploadImageToFirebaseStorage(uri) { imageUrl ->
-                // Ažuriraj profilnu sliku korisnika u Firestore-u
                 updateUserProfileImage(userId, imageUrl)
             }
         }
     }
 
-    // Pokrećemo galeriju
     LaunchedEffect(Unit) {
-        launcher.launch("image/*")
+        launcher.launch("image")
     }
-}
-
+}*/
 fun uploadImageToFirebaseStorage(uri: Uri, onComplete: (String) -> Unit) {
     val storageRef = FirebaseStorage.getInstance().reference
     val auth = FirebaseAuth.getInstance()
@@ -198,13 +224,11 @@ fun uploadImageToFirebaseStorage(uri: Uri, onComplete: (String) -> Unit) {
 
     profileImagesRef.putFile(uri)
         .addOnSuccessListener {
-            // Dobijamo URL slike
             profileImagesRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                 onComplete(downloadUrl.toString())
             }
         }
         .addOnFailureListener {
-            // Upravljaj greškama
         }
 }
 
@@ -215,10 +239,8 @@ fun updateUserProfileImage(userId: String?, imageUrl: String) {
         db.collection("users").document(userId)
             .update("profileImageUrl", imageUrl)
             .addOnSuccessListener {
-                // Uspešno ažuriran URL profilne slike
             }
             .addOnFailureListener {
-                // Upravljaj greškama
             }
     }
 }
@@ -226,41 +248,26 @@ fun deleteUserAccount(onComplete: (Boolean) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
     if (user != null) {
-        // Prvo obriši podatke iz Firestore-a (ako je potrebno)
         FirebaseFirestore.getInstance().collection("users").document(user.uid)
             .delete()
             .addOnSuccessListener {
-                // Nakon što obrišeš podatke, obriši nalog iz Authentication
                 user.delete()
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            onComplete(true) // Uspješno obrisan nalog
+                            onComplete(true)
                         } else {
-                            onComplete(false) // Greška prilikom brisanja naloga
+                            onComplete(false)
                         }
                     }
             }
             .addOnFailureListener {
-                onComplete(false) // Greška prilikom brisanja podataka iz Firestore-a
+                onComplete(false)
             }
     } else {
-        onComplete(false) // Korisnik nije ulogovan
+        onComplete(false)
     }
 }
-
-
-
-
-/*fun getUserData(userId: String, onResult: (Map<String, Any>?) -> Unit) {
-    db.collection("users").document(userId).get()
-        .addOnSuccessListener { document ->
-            if (document != null) {
-                onResult(document.data)
-            } else {
-                onResult(null)
-            }
-        }
-        .addOnFailureListener {
-            onResult(null)
-        }
-}*/
+fun logoutUser(onComplete: () -> Unit) {
+    FirebaseAuth.getInstance().signOut()
+    onComplete()
+}

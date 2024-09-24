@@ -1,18 +1,23 @@
 package com.example.rmasproject
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.rmasproject.ui.theme.primary
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -43,7 +48,6 @@ fun Activities(navController: NavController) {
             val dateTimeStr = "$dateStr $timeStr"
             val activityDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).parse(dateTimeStr)
 
-            // Filter: aktivnost koja nije prošla i odgovara sportu
             activityDate?.after(now) == true &&
                     (selectedSport == "Svi sportovi" || act["sport"] == selectedSport)
         }.sortedBy { act ->
@@ -59,71 +63,82 @@ fun Activities(navController: NavController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         content = { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
             ) {
-                // Dropdown za izbor sporta
-                Button(
-                    onClick = { dropdownExpanded = !dropdownExpanded },
-                    modifier = Modifier.fillMaxWidth()
+                Image(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
                 ) {
-                    Text(text = selectedSport)
-                }
-
-                DropdownMenu(
-                    expanded = dropdownExpanded,
-                    onDismissRequest = { dropdownExpanded = false }
-                ) {
-                    sports.forEach { sport ->
-                        DropdownMenuItem(
-                            onClick = {
-                                selectedSport = sport
-                                dropdownExpanded = false
-                            },
-                            text = { Text(text = sport) }
-                        )
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = primary),
+                        onClick = { dropdownExpanded = !dropdownExpanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = selectedSport)
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Prikaz aktivnosti u listi
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(activities) { activity ->
-                        val activityId = activity["id"] as? String
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                        ) {
-                            //Text(text = "ID: $activityId")
-                            Text(text = "Sport: ${activity["sport"]}")
-                            Text(text = "Datum: ${activity["date"]}")
-                            Text(text = "Vreme: ${activity["time"]}")
-                            Text(text = "Minimalni score: ${activity["minScore"]}")
-                            Text(text = "Max igraca: ${activity["playersCount"]}")
-                            Text(text = "Broj prijavljenih: ${activity["players"]?.let { (it as List<*>).size } ?: 0}")
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Dodaj dugme za detalje
-                            Button(
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }
+                    ) {
+                        sports.forEach { sport ->
+                            DropdownMenuItem(
                                 onClick = {
-                                    navController.navigate("${Screens.ActivityDetails.screen}/$activityId")
-                                }
-                            ) {
-                                Text(text = "Detalji")
-                            }
+                                    selectedSport = sport
+                                    dropdownExpanded = false
+                                },
+                                text = { Text(text = sport) }
+                            )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(activities) { activity ->
+                            val activityId = activity["id"] as? String
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                //Text(text = "ID: $activityId")
+                                Text(text = "Sport: ${activity["sport"]}")
+                                Text(text = "Datum: ${activity["date"]}")
+                                Text(text = "Vreme: ${activity["time"]}")
+                                Text(text = "Minimalni score: ${activity["minScore"]}")
+                                Text(text = "Max igraca: ${activity["playersCount"]}")
+                                Text(text = "Broj prijavljenih: ${activity["players"]?.let { (it as List<*>).size } ?: 0}")
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(containerColor = primary),
+                                    onClick = {
+                                        navController.navigate("${Screens.ActivityDetails.screen}/$activityId")
+                                    }
+                                ) {
+                                    Text(text = "Detalji")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }
         }
     )
 }
+
 
 

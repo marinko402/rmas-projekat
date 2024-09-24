@@ -42,6 +42,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rmasproject.services.LocationTrackerService
 import com.example.rmasproject.ui.theme.RMASProjectTheme
+import com.example.rmasproject.ui.theme.primary
+import com.example.rmasproject.ui.theme.secondary
 import com.google.maps.android.compose.GoogleMap
 
 class MainActivity : ComponentActivity() {
@@ -137,27 +139,11 @@ class MainActivity : ComponentActivity() {
     }
 
     internal fun stopLocationService() {
-        //stopNearbyCheckService()
         Intent(applicationContext, LocationTrackerService::class.java).apply {
             action = LocationTrackerService.ACTION_STOP
             startService(this)
         }
     }
-    /*@RequiresApi(Build.VERSION_CODES.O)
-    internal fun startNearbyCheckService() {
-        Intent(applicationContext, NearbyCheckService::class.java).apply {
-            action = NearbyCheckService.ACTION_START
-            startService(this)
-        }
-    }
-
-    internal fun stopNearbyCheckService() {
-        Intent(applicationContext, NearbyCheckService::class.java).apply {
-            action = NearbyCheckService.ACTION_STOP
-            startService(this)
-        }
-    }*/
-
 }
 @Composable
 fun NavBar(){
@@ -175,7 +161,7 @@ fun NavBar(){
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                BottomAppBar(containerColor = Color.Green) {
+                BottomAppBar(containerColor = primary) {
                     IconButton(
                         onClick = {
                             selected.value = Icons.Default.Home
@@ -189,7 +175,7 @@ fun NavBar(){
                             Icons.Default.Home,
                             contentDescription = null,
                             modifier = Modifier.size((26.dp)),
-                            tint = if (selected.value == Icons.Default.Home) Color.White else Color.Black
+                            tint = if (selected.value == Icons.Default.Home) Color.White else secondary
                         )
                     }
                     IconButton(
@@ -205,7 +191,7 @@ fun NavBar(){
                             Icons.Default.Place,
                             contentDescription = null,
                             modifier = Modifier.size((26.dp)),
-                            tint = if (selected.value == Icons.Default.Place) Color.White else Color.Black
+                            tint = if (selected.value == Icons.Default.Place) Color.White else secondary
                         )
                     }
                     IconButton(
@@ -221,7 +207,7 @@ fun NavBar(){
                             Icons.Default.SportsBasketball,
                             contentDescription = null,
                             modifier = Modifier.size((26.dp)),
-                            tint = if (selected.value == Icons.Default.SportsBasketball) Color.White else Color.Black
+                            tint = if (selected.value == Icons.Default.SportsBasketball) Color.White else secondary
                         )
                     }
                     IconButton(
@@ -237,7 +223,7 @@ fun NavBar(){
                             Icons.Default.Groups,
                             contentDescription = null,
                             modifier = Modifier.size((26.dp)),
-                            tint = if (selected.value == Icons.Default.Groups) Color.White else Color.Black
+                            tint = if (selected.value == Icons.Default.Groups) Color.White else secondary
                         )
                     }
                     IconButton(
@@ -253,7 +239,7 @@ fun NavBar(){
                             Icons.Default.AccountCircle,
                             contentDescription = null,
                             modifier = Modifier.size((26.dp)),
-                            tint = if (selected.value == Icons.Default.AccountCircle) Color.White else Color.Black
+                            tint = if (selected.value == Icons.Default.AccountCircle) Color.White else secondary
                         )
                     }
                 }

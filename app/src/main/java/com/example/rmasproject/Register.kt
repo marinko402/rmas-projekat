@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,10 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.rmasproject.ui.theme.primary
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -46,7 +51,6 @@ fun Register(navController: NavController) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Launcher za biranje slike
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -58,128 +62,144 @@ fun Register(navController: NavController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         content = { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .verticalScroll(scrollState),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "Registracija")
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Polje za korisničko ime
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Korisničko ime") },
-                    modifier = Modifier.fillMaxWidth()
+                Image(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Registracija")
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Ime") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Korisničko ime") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = surname,
-                    onValueChange = { surname = it },
-                    label = { Text("Prezime") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Ime") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Telefon") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = surname,
+                        onValueChange = { surname = it },
+                        label = { Text("Prezime") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        label = { Text("Telefon") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
-                )
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Prikaz slike i dugme za biranje slike
-                imageUri?.let {
-                    Image(
-                        painter = rememberImagePainter(data = it),
-                        contentDescription = null,
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    imageUri?.let {
+                        Image(
+                            painter = rememberImagePainter(data = it),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(100.dp)
+                                .fillMaxWidth()
+                                .clickable { imagePickerLauncher.launch("image/*") }
+                        )
+                    } ?: Text(
+                        text = "Dodajte sliku",
+                        color = Color.Gray,
                         modifier = Modifier
-                            .height(100.dp)
-                            .fillMaxWidth()
                             .clickable { imagePickerLauncher.launch("image/*") }
                     )
-                } ?: Text(
-                    text = "Dodajte sliku",
-                    color = Color.Gray,
-                    modifier = Modifier
-                        .clickable { imagePickerLauncher.launch("image/*") }
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        registerUser(email, username, password) { isSuccess ->
-                            if (isSuccess) {
-                                val userId = FirebaseAuth.getInstance().currentUser?.uid
-                                if (userId != null) {
-                                    // Sačuvaj korisničke podatke
-                                    saveUserData(userId, name, surname, email, phone, username, 0)
-
-                                    // Postavi profilnu sliku
-                                    imageUri?.let { uri ->
-                                        uploadProfilePicture(userId, uri)
-                                    }
-                                    navController.navigate(Screens.Login.screen)
-                                }
-                            } else {
-                                errorMessage = "Registracija nije uspela."
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Registruj se")
-                }
-
-                if (errorMessage != null) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = errorMessage ?: "", color = Color.Red)
-                }
 
-                TextButton(onClick = {
-                    navController.navigate(Screens.Login.screen)
-                }) {
-                    Text("Već imate nalog? Ulogujte se")
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = primary),
+                        onClick = {
+                            registerUser(email, username, password) { isSuccess ->
+                                if (isSuccess) {
+                                    val userId = FirebaseAuth.getInstance().currentUser?.uid
+                                    if (userId != null) {
+                                        saveUserData(
+                                            userId,
+                                            name,
+                                            surname,
+                                            email,
+                                            phone,
+                                            username,
+                                            0
+                                        )
+
+                                        imageUri?.let { uri ->
+                                            uploadProfilePicture(userId, uri)
+                                        }
+                                        navController.navigate(Screens.Login.screen)
+                                    }
+                                } else {
+                                    errorMessage = "Registracija nije uspela."
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Registruj se")
+                    }
+
+                    if (errorMessage != null) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text = errorMessage ?: "", color = Color.Red)
+                    }
+
+                    TextButton(onClick = {
+                        navController.navigate(Screens.Login.screen)
+                    }) {
+                        Text("Već imate nalog? Ulogujte se")
+                    }
                 }
             }
         }
@@ -238,9 +258,7 @@ fun uploadProfilePicture(userId: String, imageUri: Uri) {
     val storageRef = FirebaseStorage.getInstance().reference.child("profile_images/$userId.jpg")
     storageRef.putFile(imageUri)
         .addOnSuccessListener {
-            // Uspešno postavljena slika
         }
         .addOnFailureListener {
-            // Neuspešno postavljanje slike
         }
 }
